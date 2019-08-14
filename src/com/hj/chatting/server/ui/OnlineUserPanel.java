@@ -17,6 +17,9 @@ import javax.swing.JScrollPane;
  *
  */
 public class OnlineUserPanel {
+	
+	public JList lstUser;
+	
 	public JLabel getUserPanel() {
 
 		JPanel pnlUser = new JPanel();
@@ -33,7 +36,7 @@ public class OnlineUserPanel {
 		pnlUser.add(lblUser);
 
 		// 用户列表
-		JList lstUser = new JList();
+		lstUser = new JList();
 		lstUser.setFont(new Font("宋体", 0, 14));
 		lstUser.setVisibleRowCount(17);
 		lstUser.setFixedCellWidth(180);

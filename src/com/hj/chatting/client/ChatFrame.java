@@ -4,6 +4,8 @@ import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.GraphicsEnvironment;
 import java.awt.Toolkit;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.net.Socket;
 
 import javax.swing.ImageIcon;
@@ -15,6 +17,10 @@ import javax.swing.JList;
 import javax.swing.JScrollPane;
 import javax.swing.JTextPane;
 import javax.tools.Tool;
+
+import com.hj.chatting.entity.ChatStatus;
+import com.hj.chatting.entity.TransferInfo;
+import com.hj.chatting.io.IOStream;
 
 /**
  * 聊天界面
@@ -34,9 +40,19 @@ public class ChatFrame extends JFrame {
 
 	// 聊天窗体高度
 	public static final Integer FRAME_HEIGHT = 600;
+	
+	//消息接受框
+	public JTextPane acceptPane;
+	//当前在线用户列表
+	public JList lstUser;
+	
+	String username;
+	Socket socket;
 
-	public ChatFrame() {
+	public ChatFrame(String username, Socket socket) {
 		this.setTitle("聊天室");
+		this.username = username;
+		this.socket = socket;
 		setSize(FRAME_WIDTH, FRAME_HEIGHT);
 		setResizable(false);
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -55,7 +71,7 @@ public class ChatFrame extends JFrame {
 		this.add(frameBg);
 
 		// 接收框
-		JTextPane acceptPane = new JTextPane();
+		acceptPane = new JTextPane();
 		acceptPane.setOpaque(false); // 透明
 		acceptPane.setFont(new Font("宋体", 0, 16));
 
@@ -67,7 +83,7 @@ public class ChatFrame extends JFrame {
 		frameBg.add(scrollPaneOne);
 
 		// 当前在线用户列表
-		JList lstUser = new JList();
+		lstUser = new JList();
 		lstUser.setFont(new Font("宋体", 0, 14));
 		lstUser.setVisibleRowCount(17);
 		lstUser.setFixedCellWidth(180);
@@ -121,14 +137,25 @@ public class ChatFrame extends JFrame {
 		 */
 		JButton send = new JButton("发 送");
 		send.setBounds(600, 533, 125, 25);
+		send.addActionListener(new ActionListener() {
+			
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				String content = sendPane.getText();
+				TransferInfo transferInfo = new TransferInfo();
+				transferInfo.setContent(content);
+				//发送人
+				transferInfo.setSender(username);
+				//接收人
+				transferInfo.setReciver("ALL");
+				transferInfo.setStatusEnum(ChatStatus.CHAT);
+				IOStream.writeMessage(socket, transferInfo);
+				sendPane.setText("");
+			}
+		});
 		frameBg.add(send);
 
 		setVisible(true);
 
 	}
-
-	public static void main(String[] args) {
-		new ChatFrame();
-	}
-
 }

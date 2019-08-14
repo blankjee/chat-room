@@ -32,6 +32,9 @@ public class ServerFrame extends JFrame {
 	public static final Integer FRAME_WIDTH = 550;
 	// 服务器窗体高度
 	public static final Integer FRAME_HEIGHT = 500;
+	
+	//用户列表
+	public OnlineUserPanel onlineUserPanel;
 
 	public ServerFrame() {
 
@@ -53,7 +56,7 @@ public class ServerFrame extends JFrame {
 		tpServer.setFont(new Font("宋体", 0, 18));
 
 		ServerInfoPanel serverInfoPanel = new ServerInfoPanel();
-		OnlineUserPanel onlineUserPanel = new OnlineUserPanel();
+		onlineUserPanel = new OnlineUserPanel();
 		tpServer.add("服务器信息", serverInfoPanel.getServerInfoPanel());
 		tpServer.add("在线用户列表", onlineUserPanel.getUserPanel());
 		

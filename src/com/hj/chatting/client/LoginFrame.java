@@ -21,6 +21,7 @@ import javax.swing.JLabel;
 import javax.swing.JPasswordField;
 import javax.swing.JTextField;
 
+import com.hj.chatting.entity.ChatStatus;
 import com.hj.chatting.entity.TransferInfo;
 import com.hj.chatting.io.IOStream;
 
@@ -110,6 +111,7 @@ public class LoginFrame extends JFrame {
 				TransferInfo transferInfo = new TransferInfo();
 				transferInfo.setUsername(username);
 				transferInfo.setPassword(password);
+				transferInfo.setStatusEnum(ChatStatus.LOGIN);
 				connectionServer(transferInfo);
 			}
 		});
