@@ -6,6 +6,9 @@ import java.awt.GraphicsEnvironment;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
 import java.net.Socket;
 
 import javax.swing.ImageIcon;
@@ -48,11 +51,13 @@ public class ChatFrame extends JFrame {
 	
 	String username;
 	Socket socket;
+	ChatFrame chatFrame;
 
 	public ChatFrame(String username, Socket socket) {
 		this.setTitle("聊天室");
 		this.username = username;
 		this.socket = socket;
+		chatFrame = this;
 		setSize(FRAME_WIDTH, FRAME_HEIGHT);
 		setResizable(false);
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -114,6 +119,17 @@ public class ChatFrame extends JFrame {
 		// 添加抖动效果
 		JLabel lbldoudong = new JLabel(new ImageIcon("src/image/shake.png"));
 		lbldoudong.setBounds(252, 363, 25, 25);
+		lbldoudong.addMouseListener(new MouseAdapter () {
+			@Override
+			public void mouseClicked(MouseEvent e) {
+				new Shake(chatFrame).start();
+				TransferInfo transferInfo = new TransferInfo();
+				transferInfo.setStatusEnum(ChatStatus.SHAKE);
+				transferInfo.setSender(username);
+				transferInfo.setReciver("ALL");
+				IOStream.writeMessage(socket, transferInfo);
+			}
+		});
 		frameBg.add(lbldoudong);
 
 		// 设置字体选择

@@ -52,6 +52,9 @@ public class ServerHandler extends Thread {
 				}else if (transferInfo.getStatusEnum() == ChatStatus.CHAT) {
 					//聊天信息类型
 					chatHandler(transferInfo);
+				}else if (transferInfo.getStatusEnum() == ChatStatus.SHAKE) {
+					//抖动消息类型
+					shake(transferInfo);
 				}
 				
 			}
@@ -158,5 +161,19 @@ public class ServerHandler extends Thread {
 		}
 	
 		return false;
+	}
+	
+	/**
+	 * 发送抖动消息给其他人的客户端
+	 * @param rInfo
+	 */
+	public void shake(TransferInfo transferInfo) {
+		String reciver = transferInfo.getReciver();
+		if ("ALL".equals(reciver)) {
+			//发送给所有人
+			sendAll(transferInfo);
+		}else{
+			//私发
+		}
 	}
 }

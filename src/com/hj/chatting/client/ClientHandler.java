@@ -51,6 +51,9 @@ public class ClientHandler extends Thread {
 				}else if (transferInfo.getStatusEnum() == ChatStatus.ULIST) {
 					//刷新当前在线用户列表
 					onlineUsersResult(transferInfo);
+				}else if (transferInfo.getStatusEnum() == ChatStatus.SHAKE) {
+					//发送抖动消息
+					shakeResult(transferInfo);
 				}
 				
 				
@@ -110,5 +113,13 @@ public class ClientHandler extends Thread {
 	public void onlineUsersResult(TransferInfo transferInfo) {
 		String[] userOnlineArray = transferInfo.getUserOnlineArray();
 		chatFrame.lstUser.setListData(userOnlineArray);
+	}
+	/**
+	 * 接收服务器发送过来的抖动信息
+	 * @param transferInfo
+	 */
+	public void shakeResult(TransferInfo transferInfo) {
+		Shake shake = new Shake(chatFrame);
+		shake.start();
 	}
 }
