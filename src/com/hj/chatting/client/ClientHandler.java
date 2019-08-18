@@ -7,7 +7,10 @@ import javax.swing.JOptionPane;
 
 import com.hj.chatting.entity.ChatStatus;
 import com.hj.chatting.entity.TransferInfo;
+import com.hj.chatting.entity.User;
 import com.hj.chatting.io.IOStream;
+import com.hj.chatting.ulist.ImageCellRenderer;
+import com.hj.chatting.ulist.ImageListModel;
 
 /**
  * 客户端开启一个线程，来一起读消息
@@ -112,7 +115,22 @@ public class ClientHandler extends Thread {
 	 */
 	public void onlineUsersResult(TransferInfo transferInfo) {
 		String[] userOnlineArray = transferInfo.getUserOnlineArray();
-		chatFrame.lstUser.setListData(userOnlineArray);
+		
+		ImageListModel model = new ImageListModel();
+		for (String username: userOnlineArray){
+			//头像
+			User user = new User();
+			user.setUserName(username);
+			user.setUiconPath("src/image/uicon/" + username + ".png");
+			//System.out.println(user.getUiconPath());
+			user.setMotto("没有签名...");
+			model.addElement(user);
+		}
+		//JList的模型，给我们存放数据。
+		chatFrame.lstUser.setModel(model);
+		//提供给我们自定义想要的皮肤或样式
+		chatFrame.lstUser.setCellRenderer(new ImageCellRenderer());
+		//chatFrame.lstUser.setListData(userOnlineArray);
 	}
 	/**
 	 * 接收服务器发送过来的抖动信息

@@ -12,10 +12,19 @@ import javax.swing.JScrollPane;
 import javax.swing.JTextField;
 import javax.swing.JTextPane;
 
+import com.hj.chatting.constants.Constants;
 import com.hj.chatting.server.ServerFrame;
 
+/**
+ * 服务器参数选项卡
+ * @author huang
+ *
+ */
 public class ServerInfoPanel {
-
+	public JTextField txtServerName;
+	public JTextField txtIP;
+	public JTextField txtNumber;
+	public JTextPane txtLog;
 	/**
 	 * 第一个选项卡信息
 	 * 
@@ -36,9 +45,12 @@ public class ServerInfoPanel {
 		pnlServer.add(lblLog);
 
 		// 日志区域
-		JTextPane txtLog = new JTextPane();
-		txtLog.setOpaque(false);
-		txtLog.setFont(new Font("宋体", 0, 12));
+		txtLog = new JTextPane();
+		txtLog.setBackground(Color.BLACK);
+		txtLog.setForeground(Color.white);
+		txtLog.setOpaque(true);
+		txtLog.setFont(new Font("宋体", 0, 14));
+		
 
 		JScrollPane scoPaneOne = new JScrollPane(txtLog);// 设置滚动条
 		scoPaneOne.setBounds(130, 35, 380, 360);
@@ -83,7 +95,7 @@ public class ServerInfoPanel {
 		lblNumber.setFont(new Font("宋体", 0, 14));
 		serverParamPanel.add(lblNumber);
 
-		JTextField txtNumber = new JTextField("0 人", 10);
+		txtNumber = new JTextField("0 人", 10);
 		txtNumber.setFont(new Font("宋体", 0, 14));
 		txtNumber.setEditable(false);
 		serverParamPanel.add(txtNumber);
@@ -92,7 +104,7 @@ public class ServerInfoPanel {
 		lblServerName.setFont(new Font("宋体", 0, 14));
 		serverParamPanel.add(lblServerName);
 
-		JTextField txtServerName = new JTextField(10);
+		txtServerName = new JTextField(10);
 		txtServerName.setFont(new Font("宋体", 0, 14));
 		txtServerName.setEditable(false);
 		serverParamPanel.add(txtServerName);
@@ -101,7 +113,7 @@ public class ServerInfoPanel {
 		lblIP.setFont(new Font("宋体", 0, 14));
 		serverParamPanel.add(lblIP);
 
-		JTextField txtIP = new JTextField(10);
+		txtIP = new JTextField(10);
 		txtIP.setFont(new Font("宋体", 0, 14));
 		txtIP.setEditable(false);
 		serverParamPanel.add(txtIP);
@@ -110,7 +122,7 @@ public class ServerInfoPanel {
 		lblPort.setFont(new Font("宋体", 0, 14));
 		serverParamPanel.add(lblPort);
 
-		JTextField txtPort = new JTextField("8888", 10);
+		JTextField txtPort = new JTextField(Constants.SERVER_PORT + "", 10);
 		txtPort.setFont(new Font("宋体", 0, 14));
 		txtPort.setEditable(false);
 		serverParamPanel.add(txtPort);

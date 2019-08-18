@@ -35,6 +35,8 @@ public class ServerFrame extends JFrame {
 	
 	//用户列表
 	public OnlineUserPanel onlineUserPanel;
+	//服务器信息
+	public ServerInfoPanel serverInfoPanel;
 
 	public ServerFrame() {
 
@@ -55,7 +57,7 @@ public class ServerFrame extends JFrame {
 		tpServer.setBackground(Color.WHITE);
 		tpServer.setFont(new Font("宋体", 0, 18));
 
-		ServerInfoPanel serverInfoPanel = new ServerInfoPanel();
+		serverInfoPanel = new ServerInfoPanel();
 		onlineUserPanel = new OnlineUserPanel();
 		tpServer.add("服务器信息", serverInfoPanel.getServerInfoPanel());
 		tpServer.add("在线用户列表", onlineUserPanel.getUserPanel());
@@ -64,10 +66,5 @@ public class ServerFrame extends JFrame {
 		setVisible(true);
 	}
 
-	
-
-	public static void main(String[] args) {
-		new ServerFrame();
-	}
 
 }

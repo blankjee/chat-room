@@ -1,5 +1,6 @@
 package com.hj.chatting.client;
 
+import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.GraphicsEnvironment;
@@ -13,17 +14,24 @@ import java.net.Socket;
 
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
+import javax.swing.JColorChooser;
 import javax.swing.JComboBox;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JList;
+import javax.swing.JMenuItem;
+import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
 import javax.swing.JTextPane;
 import javax.tools.Tool;
 
 import com.hj.chatting.entity.ChatStatus;
 import com.hj.chatting.entity.TransferInfo;
+import com.hj.chatting.entity.User;
 import com.hj.chatting.io.IOStream;
+import com.hj.chatting.ulist.ImageCellRenderer;
+import com.hj.chatting.ulist.ImageListModel;
+
 
 /**
  * 聊天界面
@@ -52,7 +60,9 @@ public class ChatFrame extends JFrame {
 	String username;
 	Socket socket;
 	ChatFrame chatFrame;
-
+	JTextPane sendPane;
+	JComboBox reciverBox;
+	
 	public ChatFrame(String username, Socket socket) {
 		this.setTitle("聊天室");
 		this.username = username;
@@ -77,7 +87,7 @@ public class ChatFrame extends JFrame {
 
 		// 接收框
 		acceptPane = new JTextPane();
-		acceptPane.setOpaque(false); // 透明
+		acceptPane.setOpaque(true); // 不透明
 		acceptPane.setFont(new Font("宋体", 0, 16));
 
 		// 接收滚动条
@@ -92,8 +102,47 @@ public class ChatFrame extends JFrame {
 		lstUser.setFont(new Font("宋体", 0, 14));
 		lstUser.setVisibleRowCount(17);
 		lstUser.setFixedCellWidth(180);
-		lstUser.setFixedCellHeight(18);
-
+		lstUser.setFixedCellHeight(60);
+		
+		JPopupMenu popupMenu = new JPopupMenu();
+		JMenuItem privateChat = new JMenuItem("私聊");
+		privateChat.addActionListener(new ActionListener() {
+			
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				Object reciverObj = lstUser.getSelectedValue();
+				if (reciverObj instanceof User) {
+					User user = (User) reciverObj;
+					String reciver = user.getUserName();
+					reciverBox.removeAllItems();
+					reciverBox.addItem("ALL");
+					reciverBox.addItem(reciver);
+					reciverBox.setSelectedItem(reciver);
+				}
+			}
+		});
+		popupMenu.add(privateChat);
+		JMenuItem blackList = new JMenuItem("黑名单");
+		blackList.addActionListener(new ActionListener() {
+			
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				// TODO Auto-generated method stub
+				
+			}
+		});
+		popupMenu.add(blackList);
+		//添加点击事件，需要确认是右键。
+		lstUser.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mouseClicked(MouseEvent e) {
+				//监听左键|右键
+				if (e.isMetaDown() && lstUser.getSelectedIndex() >= 0) {
+					//弹出菜单
+					popupMenu.show(lstUser, e.getX(), e.getY());
+				}
+			}
+		});
 		JScrollPane spUser = new JScrollPane(lstUser);
 		spUser.setFont(new Font("宋体", 0, 14));
 		spUser.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
@@ -101,8 +150,8 @@ public class ChatFrame extends JFrame {
 		frameBg.add(spUser);
 
 		// 输入框
-		JTextPane sendPane = new JTextPane();
-		sendPane.setOpaque(false);
+		sendPane = new JTextPane();
+		sendPane.setOpaque(true);
 		sendPane.setFont(new Font("宋体", 0, 16));
 
 		JScrollPane scoPane = new JScrollPane(sendPane);// 设置滚动条
@@ -112,13 +161,15 @@ public class ChatFrame extends JFrame {
 		frameBg.add(scoPane);
 
 		// 添加表情选择
+		/*
 		JLabel lblface = new JLabel(new ImageIcon("src/image/face.png"));
 		lblface.setBounds(225, 363, 25, 25);
 		frameBg.add(lblface);
-
+		*/
 		// 添加抖动效果
 		JLabel lbldoudong = new JLabel(new ImageIcon("src/image/shake.png"));
-		lbldoudong.setBounds(252, 363, 25, 25);
+		//lbldoudong.setBounds(252, 363, 25, 25);
+		lbldoudong.setBounds(225, 363, 25, 25);
 		lbldoudong.addMouseListener(new MouseAdapter () {
 			@Override
 			public void mouseClicked(MouseEvent e) {
@@ -126,27 +177,27 @@ public class ChatFrame extends JFrame {
 				TransferInfo transferInfo = new TransferInfo();
 				transferInfo.setStatusEnum(ChatStatus.SHAKE);
 				transferInfo.setSender(username);
-				transferInfo.setReciver("ALL");
+				String reciver = "ALL";
+				Object reciverObj = reciverBox.getSelectedItem();
+				if (reciverObj != null) {
+					reciver = String.valueOf(reciverObj);
+				}
+				transferInfo.setReciver(reciver);
 				IOStream.writeMessage(socket, transferInfo);
 			}
 		});
 		frameBg.add(lbldoudong);
 
-		// 设置字体选择
-		JLabel lblfontChoose = new JLabel(new ImageIcon("src/image/font.png"));
-		lblfontChoose.setBounds(253, 363, 80, 25);
-		frameBg.add(lblfontChoose);
-
-		// 字体下拉选项
-		JComboBox fontFamilyCmb = new JComboBox();
-		GraphicsEnvironment graphicsEnvironment = GraphicsEnvironment.getLocalGraphicsEnvironment();
-		String[] str = graphicsEnvironment.getAvailableFontFamilyNames();
-		for (String string : str) {
-			fontFamilyCmb.addItem(string);
-		}
-		fontFamilyCmb.setSelectedItem("楷体");
-		fontFamilyCmb.setBounds(315, 363, 150, 25);
-		frameBg.add(fontFamilyCmb);
+		//私聊标签
+		JLabel reciverLabel = new JLabel("聊天对象：");
+		reciverLabel.setBounds(505, 362, 80, 25);
+		frameBg.add(reciverLabel);
+		//ALL、私聊下拉选择框
+		reciverBox = new JComboBox();
+		reciverBox.setSelectedItem("ALL");
+		reciverBox.addItem("ALL");
+		reciverBox.setBounds(575, 362, 150, 25);
+		frameBg.add(reciverBox);
 
 		/*
 		 * 发送按钮
@@ -162,8 +213,14 @@ public class ChatFrame extends JFrame {
 				transferInfo.setContent(content);
 				//发送人
 				transferInfo.setSender(username);
+				String reciver = "ALL";
+				Object reciverObj = reciverBox.getSelectedItem();
+				if (reciverObj != null) {
+					reciver = String.valueOf(reciverObj);
+				}
+				System.out.println("发送消息：" + reciver);
 				//接收人
-				transferInfo.setReciver("ALL");
+				transferInfo.setReciver(reciver);
 				transferInfo.setStatusEnum(ChatStatus.CHAT);
 				IOStream.writeMessage(socket, transferInfo);
 				sendPane.setText("");

@@ -7,10 +7,13 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 
 import java.net.Socket;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import javax.swing.JList;
+import javax.swing.JTextPane;
 
 import com.hj.chatting.entity.ChatStatus;
 import com.hj.chatting.entity.TransferInfo;
@@ -78,13 +81,14 @@ public class ServerHandler extends Thread {
 			
 			//统计在线人数
 			onlineUsers.add(username);
-			System.out.println(onlineUsers);
 			onlineSockets.add(socket);
+			ChatServer.userSocketMap.put(username, socket);
 			
 			//返回用户上线信息给所有用户（系统消息）
 			transferInfo = new TransferInfo();
-			transferInfo.setStatusEnum(ChatStatus.NOTICE);	
-			transferInfo.setNotice(">> 欢迎 " + username + " 来到聊天室");
+			transferInfo.setStatusEnum(ChatStatus.NOTICE);
+			String notice = ">> 欢迎 " + username + " 来到聊天室";
+			transferInfo.setNotice(notice);
 			sendAll(transferInfo);	
 			
 			//发送最新的用户列表给客户端
@@ -95,10 +99,22 @@ public class ServerHandler extends Thread {
 			
 			//刷新在线用户列表
 			flushOnlineUserList();
+			
+			//发送信息给服务器日志
+			log(notice);
 		}else{
 			//返回登录失败给客户端
 			IOStream.writeMessage(socket, transferInfo);
+			log(transferInfo.getUsername() + "登录失败");
 		}
+	}
+	public void log(String log) {
+		Date date = new Date();
+		SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+		String dateStr = simpleDateFormat.format(date);
+		JTextPane txtLog = serverFrame.serverInfoPanel.txtLog;
+		String oldLog = txtLog.getText();
+		txtLog.setText(oldLog + "\n" + dateStr + ":" + log);
 	}
 	/**
 	 * 刷新用户列表（当一个用户上线时，便刷新）
@@ -107,6 +123,7 @@ public class ServerHandler extends Thread {
 		JList lstUser = serverFrame.onlineUserPanel.lstUser;
 		String[] userArray = onlineUsers.toArray(new String[onlineUsers.size()]);
 		lstUser.setListData(userArray);
+		serverFrame.serverInfoPanel.txtNumber.setText(userArray.length + "");
 	}
 	/**
 	 * 广播给所有人
@@ -118,6 +135,20 @@ public class ServerHandler extends Thread {
 			IOStream.writeMessage(tempSocket, transferInfo);
 		}
 	}
+	
+	/**
+	 * 私聊
+	 * @param transferInfo
+	 */
+	public void send(TransferInfo transferInfo) {
+		String reciver = transferInfo.getReciver();
+		String sender = transferInfo.getSender();
+		Socket socket1 = ChatServer.userSocketMap.get(reciver);
+		IOStream.writeMessage(socket1, transferInfo);
+		
+		Socket socket2 = ChatServer.userSocketMap.get(sender);
+		IOStream.writeMessage(socket2, transferInfo);
+	}
 	/**
 	 * 处理客户端聊天请求
 	 */
@@ -128,6 +159,7 @@ public class ServerHandler extends Thread {
 			sendAll(transferInfo);
 		}else{
 			//私聊
+			send(transferInfo);
 		}
 	}
 	
@@ -174,6 +206,7 @@ public class ServerHandler extends Thread {
 			sendAll(transferInfo);
 		}else{
 			//私发
+			send(transferInfo);
 		}
 	}
 }
