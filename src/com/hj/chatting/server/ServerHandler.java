@@ -10,6 +10,7 @@ import java.net.Socket;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.Iterator;
 import java.util.List;
 
 import javax.swing.JList;
@@ -58,8 +59,21 @@ public class ServerHandler extends Thread {
 				}else if (transferInfo.getStatusEnum() == ChatStatus.SHAKE) {
 					//抖动消息类型
 					shake(transferInfo);
+				}else if (transferInfo.getStatusEnum() == ChatStatus.EXIT) {
+					logout(transferInfo);
+					try {
+						Thread.sleep(1000);
+						socket.close();	//关闭socket连接
+					} catch (InterruptedException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					} catch (IOException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+					this.interrupt();//关闭当前线程
+					break;
 				}
-				
 			}
 			
 		}
@@ -209,4 +223,43 @@ public class ServerHandler extends Thread {
 			send(transferInfo);
 		}
 	}
+	/**
+	 * 用户退出处理，清理在线人数，刷新用户列表，告诉所有人，你已经离开
+	 * @param transferInfo
+	 */
+	private void logout(TransferInfo transferInfo) {
+		String userName = transferInfo.getUsername();
+		//将该用户从用户集合移除
+		Iterator<String> userIter = onlineUsers.iterator();
+		while(userIter.hasNext()) {
+			if(userIter.next().equals(userName)) {
+				userIter.remove();
+			}
+		}
+		
+		//将该用户从socket集合移除
+		Iterator<Socket> socketIter = onlineSockets.iterator();
+		while(socketIter.hasNext()) {
+			Socket next = socketIter.next();
+			if(socket == next) {
+				socketIter.remove();
+			}
+		}
+		
+		//将user与Socket的关系从Map中移除
+		ChatServer.userSocketMap.remove(userName);
+		
+		//刷新服务器面板的用户列表
+		flushOnlineUserList();
+		
+		//给所有在线的用户发送下线消息
+		transferInfo.setStatusEnum(ChatStatus.NOTICE);
+		sendAll(transferInfo);
+		
+		//告诉其他人刷新用户列表
+		transferInfo.setUserOnlineArray(onlineUsers.toArray(new String [onlineUsers.size()]));
+		transferInfo.setStatusEnum(ChatStatus.ULIST);
+		sendAll(transferInfo);
+	}
+
 }

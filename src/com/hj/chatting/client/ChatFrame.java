@@ -10,6 +10,8 @@ import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 import java.net.Socket;
 
 import javax.swing.ImageIcon;
@@ -228,6 +230,24 @@ public class ChatFrame extends JFrame {
 		});
 		frameBg.add(send);
 
+		
+		//客户端关闭窗体退出
+		this.addWindowListener(new WindowAdapter() {
+			@Override
+			public void windowClosing(WindowEvent e) {
+				try {
+					System.out.println(username + "窗口关闭");
+					TransferInfo tfi = new TransferInfo();
+					tfi.setStatusEnum(ChatStatus.EXIT);
+					tfi.setUsername(username);
+					tfi.setNotice(username + "已离开聊天室.....");
+					IOStream.writeMessage(socket, tfi);
+				} catch (Exception e1) {
+					e1.printStackTrace();
+				}
+			}
+		});
+				
 		setVisible(true);
 
 	}

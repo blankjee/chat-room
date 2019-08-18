@@ -11,7 +11,8 @@ public enum ChatStatus {
 	NOTICE(2, "系统消息"),
 	CHAT(3, "聊天消息"),
 	SHAKE(4, "抖动消息"),
-	ULIST(5, "在线用户列表");
+	ULIST(5, "在线用户列表"),
+	EXIT(6, "退出系统");
 	
 	private Integer status;
 	private String desc;
